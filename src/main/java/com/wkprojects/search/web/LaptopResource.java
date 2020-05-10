@@ -17,7 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/laptop")
-@CrossOrigin(origins = "http://localhost:4200", exposedHeaders = "X-Total-Count")
+@CrossOrigin(origins = {"http://localhost:4200", "https://laptop-store.netlify.app"}, exposedHeaders = "X-Total-Count")
 public class LaptopResource {
 
     private final LaptopService laptopService;
