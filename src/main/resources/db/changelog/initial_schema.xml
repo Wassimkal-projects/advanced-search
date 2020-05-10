@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+
+    <changeSet id="10000" author="wassim">
+
+        <createSequence incrementBy="1"
+                        schemaName="public"
+                        sequenceName="laptop_seq"
+                        startValue="1"/>
+
+        <createTable tableName="laptop">
+            <column  name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="Product_Pk"/>
+            </column>
+            <column name="code" type="varchar(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="brand" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="processor_type" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ram_size" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hard_disk" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="laptop_weight" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="graphics_processor" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="screen_size" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="screen_type" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="operating_system" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="available" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>
