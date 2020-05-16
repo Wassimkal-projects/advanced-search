@@ -39,8 +39,10 @@ public class LaptopResource {
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
-    @GetMapping("/hello")
-    public ResponseEntity<String> helloWorld() {
-        return new ResponseEntity<>("Hello World! ", HttpStatus.OK);
+    @GetMapping("/searchV2")
+    public ResponseEntity<List<LaptopDto>> getSearchedLaptopsV2(@RequestParam Map<String, String> params, Pageable pageable) {
+        final Page<LaptopDto> page = laptopService.getSearchedLaptopsV2(params, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 }

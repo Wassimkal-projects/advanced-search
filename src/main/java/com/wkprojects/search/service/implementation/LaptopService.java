@@ -3,12 +3,14 @@ package com.wkprojects.search.service.implementation;
 import com.wkprojects.search.domain.Laptop;
 import com.wkprojects.search.domain.Laptop_;
 import com.wkprojects.search.model.LaptopSearchCriteria;
+import com.wkprojects.search.model.OperationEnum;
 import com.wkprojects.search.model.SearchValueOperationModel;
 import com.wkprojects.search.repository.LaptopRepository;
 import com.wkprojects.search.service.dto.LaptopDto;
 import com.wkprojects.search.service.mapper.LaptopMapper;
 import com.wkprojects.search.specification.LaptopSpecificationBuilder;
 import com.wkprojects.search.utils.RandomLaptopFieldsUtil;
+import com.wkprojects.search.web.errors.FilterSyntaxError;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -69,5 +73,39 @@ public class LaptopService {
             }
         }
         return laptopRepository.findAll(spec, pageable).map(laptopMapper::entityToDto);
+    }
+
+    public Page<LaptopDto> getSearchedLaptopsV2(Map<String, String> searchValues, Pageable pageable) {
+        Specification<Laptop> spec = null;
+        for (String searchCriteria : LaptopSearchCriteria.searchCriteria) {
+            LaptopSpecificationBuilder builder = new LaptopSpecificationBuilder();
+            try {
+                if (!searchCriteria.equals(Laptop_.PRICE) && searchValues.get(searchCriteria) != null) {
+                    List<String> searchValuesList = Stream.of(searchValues.get(searchCriteria).split(",", -1)).map(String::trim).collect(Collectors.toList());
+                    searchValuesList.forEach(searchValue -> {
+                        buildWith(builder, searchCriteria, searchValue, OperationEnum.EQUAL, true);
+                    });
+                    spec = spec == null ? builder.build() : Objects.requireNonNull(spec).and(builder.build());
+                } else if (searchCriteria.equals(Laptop_.PRICE) && searchValues.get(searchCriteria) != null) {
+                    List<String> priceRange = Stream.of(searchValues.get(searchCriteria).split("-", 2)).map(String::trim).collect(Collectors.toList());
+                    if (priceRange.size() > 0)
+                        buildWith(builder, searchCriteria, Integer.parseInt(priceRange.get(0)), OperationEnum.GREATER_THAN, false);
+                    if (priceRange.size() == 2)
+                        buildWith(builder, searchCriteria, Integer.parseInt(priceRange.get(1)), OperationEnum.LESS_THAN, false);
+                    spec = spec == null ? builder.build() : Objects.requireNonNull(spec).and(builder.build());
+                }
+            } catch (Exception e) {
+                throw new FilterSyntaxError("Invalid syntax");
+            }
+        }
+        return laptopRepository.findAll(spec, pageable).map(laptopMapper::entityToDto);
+    }
+
+    private void buildWith(LaptopSpecificationBuilder builder, String key, Object value, OperationEnum operation, Boolean orOperation) {
+        if (key.equals(Laptop_.AVAILABLE)) {
+            builder.with(key, value.equals("true"), operation, orOperation);
+        } else {
+            builder.with(key, value, operation, orOperation);
+        }
     }
 }
